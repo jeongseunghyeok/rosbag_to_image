@@ -6,7 +6,8 @@ random.seed(SEED)
 np.random.seed(SEED)
 
 import cv2
-from lidar import *
+import sensor_msgs.point_cloud2 as pc2
+from sensor_msgs.msg import PointCloud2
 
 TOP_Y_MIN=-20     #40
 TOP_Y_MAX=+20
@@ -20,27 +21,27 @@ TOP_Y_STEP=0.1
 TOP_Z_STEP=0.4
 
 ## lidar to top ##
-def lidar_to_top(lidar):
+def lidar_to_top(msg):
 
-    idx = np.where (lidar['x']>TOP_X_MIN)
-    lidar = lidar[idx]
-    idx = np.where (lidar['x']<TOP_X_MAX)
-    lidar = lidar[idx]
+    idx = np.where (msg['x']>TOP_X_MIN)
+    msg = msg[idx]
+    idx = np.where (msg['x']<TOP_X_MAX)
+    msg = msg[idx]
 
-    idx = np.where (lidar['y']>TOP_Y_MIN)
-    lidar = lidar[idx]
-    idx = np.where (lidar['y']<TOP_Y_MAX)
-    lidar = lidar[idx]
+    idx = np.where (msg['y']>TOP_Y_MIN)
+    msg = msg[idx]
+    idx = np.where (msg['y']<TOP_Y_MAX)
+    msg = msg[idx]
 
-    idx = np.where (lidar['z']>TOP_Z_MIN)
-    lidar = lidar[idx]
-    idx = np.where (lidar['z']<TOP_Z_MAX)
-    lidar = lidar[idx]
+    idx = np.where (msg['z']>TOP_Z_MIN)
+    msg = msg[idx]
+    idx = np.where (msg['z']<TOP_Z_MAX)
+    msg = msg[idx]
 
-    x = lidar['x']
-    y = lidar['y']
-    z = lidar['z']
-    r = lidar['intensity']
+    x = msg['x']
+    y = msg['y']
+    z = msg['z']
+    r = msg['intensity']
     qxs=((x-TOP_X_MIN)//TOP_X_STEP).astype(np.int32)
     qys=((y-TOP_Y_MIN)//TOP_Y_STEP).astype(np.int32)
     qzs=((z-TOP_Z_MIN)//TOP_Z_STEP).astype(np.int32)
@@ -103,7 +104,7 @@ def lidar_to_top(lidar):
     if 1: #unprocess
         top_image = np.zeros((height,width),dtype=np.float32)
 
-        num = len(lidar)
+        num = len(msg)
         for n in range(num):
             x,y   = qxs[n],qys[n]
             yy,xx = -x,-y
@@ -117,8 +118,8 @@ def lidar_to_top(lidar):
 
     return top, top_image
 
-lidar = np.load("/root/share/project/didi/data/didi/didi-2/Data/1/15/lidar/1530509304325762000.npy")
-top, top_img = lidar_to_top(lidar)
+msg = np.load("/home/ubuntu/sample/pc1.bag")
+top, top_img = lidar_to_top(msg)
 cv2.imwrite("./output/top.png",top_img)
 from IPython.display import Image
 Image(filename="./output/top.png")
