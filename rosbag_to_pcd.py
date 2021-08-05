@@ -21,6 +21,7 @@ def save_pcd(cloud, timestamp, path):
 
 def rosbag_data_extract_sample():
     global save_path
+    topic="/laserPointCloud"
     try:
         save_path = sys.argv[1]
         topic = sys.argv[2]
